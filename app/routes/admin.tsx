@@ -130,7 +130,7 @@ export default function Admin() {
 
       <section className="hero">
         <h1>Admin dashboard</h1>
-        <p>Sales totals, recent purchases, saved 500 errors, and the Allure test report.</p>
+        <p>Sales totals, recent purchases, API docs, saved 500 errors, and the Allure test report.</p>
       </section>
 
       <div className="grid">
@@ -262,7 +262,8 @@ export default function Admin() {
           </a>
         </div>
         <p style={{ margin: "0.75rem 0 1rem" }}>
-          Published after `mvn test allure:report` (or `mvn verify`). Only ADMIN sessions can load it.
+          Published after <code>mvn test allure:report</code> (or <code>mvn verify</code>). Only ADMIN
+          sessions can load it.
         </p>
         <iframe
           className="iframe"
@@ -273,6 +274,26 @@ export default function Admin() {
           Tip: open <Link to="/admin/allure/index.html">/admin/allure</Link> for a full-page view
           proxied with your admin session.
         </p>
+      </section>
+
+      <section className="panel" style={{ marginTop: "1.5rem" }}>
+        <div className="row">
+          <div>
+            <h2>API docs (Javadoc)</h2>
+            <p className="meta" style={{ margin: "0.35rem 0 0" }}>
+              HTTP status / error codes and resource tree. Publish with{" "}
+              <code>mvn javadoc:aggregate</code>.
+            </p>
+          </div>
+          <a
+            className="btn-compact"
+            href="/admin/javadoc/index.html"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open
+          </a>
+        </div>
       </section>
     </main>
   );

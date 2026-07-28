@@ -446,6 +446,16 @@ button.secondary {
   margin-bottom: 0.85rem;
 }
 
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.9em;
+  padding: 0.15em 0.4em;
+  border-radius: 0.35rem;
+  background: #e8e8e8;
+  color: #222;
+}
+
 .row {
   display: flex;
   justify-content: space-between;

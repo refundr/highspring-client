@@ -4,7 +4,7 @@ import type { Session } from "~/utils/api.server";
 type AppNavProps = {
   user: Session;
   /** Highlight the current area in the nav */
-  current?: "shop" | "admin";
+  current?: "shop" | "admin" | "home";
   /** Total quantity of items in the persisted cart */
   cartCount?: number;
 };

@@ -33,7 +33,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     const purchase = await checkoutCart(user.sessionId);
-    return redirect(`/checkout/success?id=${purchase.id}`);
+    return redirect(`/?thanks=1&id=${purchase.id}`);
   } catch (error) {
     return json(
       { error: error instanceof Error ? error.message : "Payment could not be completed." },
