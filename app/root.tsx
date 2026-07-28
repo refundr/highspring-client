@@ -6,6 +6,7 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
+import { Footer } from "~/components/Footer";
 import stylesheet from "~/styles.css?url";
 
 export const links: LinksFunction = () => [
@@ -26,7 +27,12 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Outlet />
+        <div className="app-frame">
+          <div className="app-main">
+            <Outlet />
+          </div>
+          <Footer />
+        </div>
         <ScrollRestoration />
         <Scripts />
       </body>

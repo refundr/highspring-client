@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { getAuthUrl } from "~/utils/api.server";
 import { destroyUserSession, readSessionUser } from "~/utils/session.server";
 
@@ -18,7 +18,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const user = await readSessionUser(request);
   if (user) {
-    return redirect(user.role === "ADMIN" ? "/admin" : "/shop");
+    return redirect("/shop");
   }
 
   const redirectUri = `${url.origin}/auth/callback`;
@@ -32,7 +32,9 @@ export default function Index() {
   return (
     <main className="shell">
       <div className="topbar">
-        <div className="brand">Highspring</div>
+        <Link className="brand" to="/" aria-label="Highspring home">
+          Highspring
+        </Link>
       </div>
       <section className="hero">
         <h1>A calm storefront for a carefully priced cart.</h1>

@@ -12,7 +12,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const redirectUri = `${url.origin}/auth/callback`;
   const session = await exchangeCode(code, redirectUri);
   const cookie = await commitUserSession(session);
-  return redirect(session.role === "ADMIN" ? "/admin" : "/shop", {
+  return redirect("/shop", {
     headers: { "Set-Cookie": cookie },
   });
 }

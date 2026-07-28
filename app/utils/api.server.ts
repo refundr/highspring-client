@@ -1,4 +1,4 @@
-const API_URL = process.env.API_URL || "http://127.0.0.1:8080";
+const API_URL = process.env.API_URL || "http://127.0.0.1:8090";
 
 export type Session = {
   sessionId: string;
@@ -12,10 +12,28 @@ export type Product = {
   id: string;
   name: string;
   unitPrice: number;
+  imageUrl: string;
   categoryId: string;
   categoryCode: string;
   categoryName: string;
   discountPercent: number;
+};
+
+export type Cart = {
+  items: Array<{
+    productId: string;
+    productName: string;
+    imageUrl: string;
+    unitPrice: number;
+    quantity: number;
+    discountPercent: number;
+    lineSubtotal: number;
+  }>;
+  subtotal: number;
+  salesTax: number;
+  total: number;
+  taxRate: number;
+  itemCount: number;
 };
 
 export type Purchase = {
@@ -100,6 +118,38 @@ export function fetchProducts(sessionId: string) {
   return api<Product[]>("/v1/products/", { sessionId });
 }
 
+export function fetchCart(sessionId: string) {
+  return api<Cart>("/v1/cart/", { sessionId });
+}
+
+export function addCartItem(sessionId: string, productId: string, quantity: number) {
+  return api<Cart>("/v1/cart/items/", {
+    method: "POST",
+    sessionId,
+    body: JSON.stringify({ productId, quantity }),
+  });
+}
+
+export function setCartItemQuantity(sessionId: string, productId: string, quantity: number) {
+  return api<Cart>("/v1/cart/items/", {
+    method: "PUT",
+    sessionId,
+    body: JSON.stringify({ productId, quantity }),
+  });
+}
+
+export function checkoutCart(sessionId: string) {
+  return api<Purchase>("/v1/cart/checkout/", {
+    method: "POST",
+    sessionId,
+    body: "{}",
+  });
+}
+
+export function fetchPurchase(sessionId: string, purchaseId: string) {
+  return api<Purchase>(`/v1/purchases/${purchaseId}/`, { sessionId });
+}
+
 export function createPurchase(
   sessionId: string,
   items: Array<{ productId: string; quantity: number }>
@@ -121,6 +171,24 @@ export function fetchAdminPurchases(sessionId: string) {
 
 export function fetchAdminErrors(sessionId: string) {
   return api<ErrorLog[]>("/v1/admin/errors/", { sessionId });
+}
+
+export function deleteAdminError(sessionId: string, errorId: number) {
+  return api<void>(`/v1/admin/errors/${errorId}/`, {
+    method: "DELETE",
+    sessionId,
+  });
+}
+
+export function deleteAllAdminErrors(sessionId: string) {
+  return api<{ deleted: number }>("/v1/admin/errors/", {
+    method: "DELETE",
+    sessionId,
+  });
+}
+
+export function triggerDemoBoom(sessionId: string) {
+  return api<void>("/v1/admin/boom/", { sessionId });
 }
 
 export function allureReportUrl() {
