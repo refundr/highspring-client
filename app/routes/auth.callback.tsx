@@ -1,3 +1,11 @@
+/**
+ * Google OAuth return URL: /auth/callback?code=…
+ *
+ * Google redirects the browser here after the user consents.
+ * We trade `code` for a Highspring Session, store it in the cookie, then go to /shop.
+ *
+ * Must match GOOGLE_REDIRECT_URI on the API and the URI registered in Google Cloud Console.
+ */
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { exchangeCode } from "~/utils/api.server";
@@ -9,6 +17,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!code) {
     throw new Response("Missing Google authorization code", { status: 400 });
   }
+  // redirectUri must be identical to the one used when building the auth URL.
   const redirectUri = `${url.origin}/auth/callback`;
   const session = await exchangeCode(code, redirectUri);
   const cookie = await commitUserSession(session);
@@ -18,5 +27,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function AuthCallback() {
-  return <p className="shell">Finishing sign-in…</p>;
+  // Users rarely see this — the loader redirects immediately on success.
+  return (
+    <p className="mx-auto w-[min(1100px,calc(100%-2rem))] py-6 text-muted">Finishing sign-in…</p>
+  );
 }

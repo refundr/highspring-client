@@ -4,3 +4,7 @@ build
 .env
 .DS_Store
 package-lock.json
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

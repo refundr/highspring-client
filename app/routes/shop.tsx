@@ -1,3 +1,14 @@
+/**
+ * Shop page `/shop` — catalog + sticky cart.
+ *
+ * Remix data flow:
+ * - `loader` runs on GET: must be signed in; loads products + cart from the API
+ * - `action` runs on form POST: add / set quantity / remove cart lines
+ * - The default export reads loader + action data and renders HTML
+ *
+ * Cart state lives on the **server** (Postgres). After a successful action we
+ * prefer `actionData.cart` so the UI updates without waiting for a full reload.
+ */
 import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useLoaderData, useNavigation } from "@remix-run/react";
@@ -12,6 +23,20 @@ import {
   type Product,
 } from "~/utils/api.server";
 import { commitUserSession, readSessionUser } from "~/utils/session.server";
+import {
+  btn,
+  btnCompact,
+  btnGhost,
+  heading,
+  hero,
+  muted,
+  price,
+  priceInline,
+  priceSm,
+  priceTotal,
+  qty,
+  shell,
+} from "~/utils/ui";
 
 export const meta: MetaFunction = () => [{ title: "Shop · Highspring" }];
 
@@ -84,37 +109,45 @@ export default function Shop() {
   const busy = navigation.state !== "idle";
 
   return (
-    <main className="shell">
+    <main className={shell}>
       <AppNav user={user} current="shop" cartCount={cart.itemCount} />
 
-      <section className="hero">
-        <h1>Shop the catalog</h1>
-        <p>
+      <section className={hero}>
+        <h1 className={heading}>Shop the catalog</h1>
+        <p className={`${muted} max-w-xl text-[1.1rem]`}>
           Add items to your cart — quantities are saved on the server, so you can leave and come
           back later to check out.
         </p>
       </section>
 
-      <div className="shop-layout">
+      <div className="grid items-start gap-6 max-md:grid-cols-1 md:grid-cols-[minmax(0,1.6fr)_minmax(280px,0.9fr)]">
         <section aria-label="Catalog">
-          <div className="grid">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-4">
             {products.map((product: Product) => (
-              <article className="product" key={product.id}>
-                <div className="product-media">
-                  <img src={product.imageUrl} alt={product.name} loading="lazy" />
+              <article
+                className="grid gap-3 overflow-hidden rounded-[1.25rem] border border-line bg-card p-0 shadow-card backdrop-blur-[10px]"
+                key={product.id}
+              >
+                <div className="aspect-square overflow-hidden bg-ink/5">
+                  <img
+                    className="block h-full w-full object-cover"
+                    src={product.imageUrl}
+                    alt={product.name}
+                    loading="lazy"
+                  />
                 </div>
-                <h3>{product.name}</h3>
-                <p className="meta">
-                  {product.categoryName} · {Number(product.discountPercent)}% off · $
-                  {Number(product.unitPrice).toFixed(2)}
+                <h3 className="m-0 px-5 pt-[0.15rem] text-[1.25rem]">{product.name}</h3>
+                <p className="m-0 px-5 text-[0.95rem] text-muted">
+                  {product.categoryName} · {Number(product.discountPercent)}% off
                 </p>
-                <Form method="post" className="product-actions">
+                <p className={`${price} px-5`}>${Number(product.unitPrice).toFixed(2)}</p>
+                <Form method="post" className="flex flex-wrap items-end gap-3 px-5 pb-5">
                   <input type="hidden" name="intent" value="add" />
                   <input type="hidden" name="productId" value={product.id} />
-                  <label>
+                  <label className="grid gap-[0.35rem] text-[0.95rem] text-muted">
                     Qty
                     <input
-                      className="qty"
+                      className={qty}
                       type="number"
                       name="quantity"
                       min={1}
@@ -123,7 +156,7 @@ export default function Shop() {
                       required
                     />
                   </label>
-                  <button type="submit" disabled={busy}>
+                  <button type="submit" className={btn} disabled={busy}>
                     Add to cart
                   </button>
                 </Form>
@@ -132,10 +165,14 @@ export default function Shop() {
           </div>
         </section>
 
-        <aside className="cart-panel" id="cart" aria-label="Shopping cart">
-          <div className="cart-header">
-            <h2>Your cart</h2>
-            <p>
+        <aside
+          className="sticky top-4 grid gap-4 rounded-[1.25rem] border border-line bg-card p-5 shadow-card backdrop-blur-[10px] max-md:static"
+          id="cart"
+          aria-label="Shopping cart"
+        >
+          <div>
+            <h2 className="mb-1 text-[1.4rem]">Your cart</h2>
+            <p className={muted}>
               {cart.itemCount === 0
                 ? "Empty — add something from the catalog."
                 : `${cart.itemCount} item${cart.itemCount === 1 ? "" : "s"} saved`}
@@ -143,23 +180,39 @@ export default function Shop() {
           </div>
 
           {cart.items.length > 0 ? (
-            <ul className="cart-lines">
+            <ul className="m-0 grid list-none gap-4 p-0">
               {cart.items.map((item) => (
-                <li className="cart-line" key={item.productId}>
-                  <img src={item.imageUrl} alt="" className="cart-thumb" />
-                  <div className="cart-line-body">
+                <li className="grid grid-cols-[72px_1fr] items-start gap-[0.85rem]" key={item.productId}>
+                  <img
+                    src={item.imageUrl}
+                    alt=""
+                    className="h-[72px] w-[72px] rounded-[0.85rem] bg-ink/5 object-cover"
+                  />
+                  <div className="grid gap-[0.35rem]">
                     <strong>{item.productName}</strong>
-                    <span className="meta">
-                      ${Number(item.unitPrice).toFixed(2)} · {Number(item.discountPercent)}% off
+                    <span className="text-[0.95rem] text-muted">
+                      {Number(item.discountPercent)}% off
                     </span>
-                    <div className="cart-line-actions">
-                      <Form method="post" className="cart-qty-form">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className={priceSm}>
+                        ${Number(item.unitPrice).toFixed(2)}
+                        <span className="font-sans text-[0.75em] font-semibold tracking-normal text-muted">
+                          {" "}
+                          each
+                        </span>
+                      </span>
+                      <span className={`${priceSm} font-bold`}>
+                        ${Number(item.lineSubtotal).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-[0.4rem]">
+                      <Form method="post" className="inline-flex min-w-0 items-center gap-[0.35rem]">
                         <input type="hidden" name="intent" value="set" />
                         <input type="hidden" name="productId" value={item.productId} />
-                        <label className="cart-qty-label">
-                          <span className="visually-hidden">Quantity</span>
+                        <label className="m-0 inline-flex">
+                          <span className="sr-only">Quantity</span>
                           <input
-                            className="qty"
+                            className="w-[3.25rem] rounded-lg border border-line bg-white px-[0.4rem] py-[0.3rem] font-sans text-[0.9rem] text-ink"
                             type="number"
                             name="quantity"
                             min={1}
@@ -169,19 +222,18 @@ export default function Shop() {
                             aria-label="Quantity"
                           />
                         </label>
-                        <button type="submit" className="btn-compact" disabled={busy}>
+                        <button type="submit" className={btnCompact} disabled={busy}>
                           Update
                         </button>
                       </Form>
                       <Form method="post">
                         <input type="hidden" name="intent" value="remove" />
                         <input type="hidden" name="productId" value={item.productId} />
-                        <button type="submit" className="btn-compact btn-ghost" disabled={busy}>
+                        <button type="submit" className={btnGhost} disabled={busy}>
                           Remove
                         </button>
                       </Form>
                     </div>
-                    <span className="line-total">${Number(item.lineSubtotal).toFixed(2)}</span>
                   </div>
                 </li>
               ))}
@@ -189,13 +241,22 @@ export default function Shop() {
           ) : null}
 
           {cart.items.length > 0 ? (
-            <div className="cart-totals">
-              <p>Subtotal: ${Number(cart.subtotal).toFixed(2)}</p>
-              <p>Sales tax: ${Number(cart.salesTax).toFixed(2)}</p>
-              <p className="success">
-                <strong>Total: ${Number(cart.total).toFixed(2)}</strong>
+            <div className="grid gap-[0.35rem] border-t border-line pt-2">
+              <p className={muted}>
+                Subtotal:{" "}
+                <span className={priceInline}>${Number(cart.subtotal).toFixed(2)}</span>
               </p>
-              <Link className="button" to="/checkout">
+              <p className={muted}>
+                Sales tax:{" "}
+                <span className={priceInline}>${Number(cart.salesTax).toFixed(2)}</span>
+              </p>
+              <p className="mt-[0.35rem] flex items-baseline justify-between gap-3 text-[1.05rem] font-semibold text-ink">
+                Total:{" "}
+                <span className={priceTotal}>
+                  ${Number(cart.total).toFixed(2)}
+                </span>
+              </p>
+              <Link className={btn} to="/checkout">
                 Check out
               </Link>
             </div>
@@ -203,7 +264,7 @@ export default function Shop() {
         </aside>
       </div>
 
-      {actionData?.error ? <p className="error">{actionData.error}</p> : null}
+      {actionData?.error ? <p className="mt-3 text-[#8a2b1c]">{actionData.error}</p> : null}
     </main>
   );
 }

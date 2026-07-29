@@ -1,3 +1,12 @@
+/**
+ * Admin dashboard `/admin` — ADMIN role only.
+ *
+ * Sections (top → bottom):
+ * KPIs → purchases → 500 error log → Allure → Playwright → Javadoc → client storage
+ *
+ * Delete buttons use `useFetcher` so the table updates without a full page reload.
+ * The cookie role check is UX; the API returns 403 if a customer hits /v1/admin/*.
+ */
 import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Link, useFetcher, useLoaderData } from "@remix-run/react";
@@ -12,6 +21,18 @@ import {
   type ErrorLog,
 } from "~/utils/api.server";
 import { readSessionUser } from "~/utils/session.server";
+import {
+  btnCompact,
+  btnGhost,
+  btnSecondary,
+  code,
+  heading,
+  hero,
+  muted,
+  panel,
+  shell,
+  table,
+} from "~/utils/ui";
 
 export const meta: MetaFunction = () => [{ title: "Admin · Highspring" }];
 
@@ -106,7 +127,7 @@ export default function Admin() {
       return;
     }
     setActionError(null);
-    if (typeof data.deletedId === "number") {
+    if ("deletedId" in data && typeof data.deletedId === "number") {
       setErrors((current) => current.filter((entry) => entry.id !== data.deletedId));
     }
   }, [deleteFetcher.data]);
@@ -119,38 +140,44 @@ export default function Admin() {
       return;
     }
     setActionError(null);
-    if (data.deletedAll) {
+    if ("deletedAll" in data && data.deletedAll) {
       setErrors([]);
     }
   }, [clearFetcher.data]);
 
   return (
-    <main className="shell">
+    <main className={shell}>
       <AppNav user={user} current="admin" />
 
-      <section className="hero">
-        <h1>Admin dashboard</h1>
-        <p>Sales totals, recent purchases, API docs, saved 500 errors, and the Allure test report.</p>
+      <section className={hero}>
+        <h1 className={heading}>Admin dashboard</h1>
+        <p className={`${muted} max-w-xl text-[1.1rem]`}>
+          Sales totals, recent purchases, API docs, saved 500 errors, and the Allure test report.
+        </p>
       </section>
 
-      <div className="grid">
-        <div className="panel">
-          <p>Purchases</p>
-          <div className="kpi">{totals.purchaseCount}</div>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-4">
+        <div className={panel}>
+          <p className={muted}>Purchases</p>
+          <div className="font-display text-[1.8rem] text-ink">{totals.purchaseCount}</div>
         </div>
-        <div className="panel">
-          <p>Revenue</p>
-          <div className="kpi">${Number(totals.totalRevenue).toFixed(2)}</div>
+        <div className={panel}>
+          <p className={muted}>Revenue</p>
+          <div className="font-display text-[1.8rem] text-ink">
+            ${Number(totals.totalRevenue).toFixed(2)}
+          </div>
         </div>
-        <div className="panel">
-          <p>Tax collected</p>
-          <div className="kpi">${Number(totals.totalTaxCollected).toFixed(2)}</div>
+        <div className={panel}>
+          <p className={muted}>Tax collected</p>
+          <div className="font-display text-[1.8rem] text-ink">
+            ${Number(totals.totalTaxCollected).toFixed(2)}
+          </div>
         </div>
       </div>
 
-      <section className="panel" style={{ marginTop: "1.5rem" }}>
+      <section className={`${panel} mt-6`}>
         <h2>Recent purchases</h2>
-        <table className="table">
+        <table className={table}>
           <thead>
             <tr>
               <th>When</th>
@@ -172,17 +199,17 @@ export default function Admin() {
         </table>
       </section>
 
-      <section className="panel" style={{ marginTop: "1.5rem" }}>
-        <div className="row">
+      <section className={`${panel} mt-6 min-w-0 overflow-hidden`}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2>Server errors (500)</h2>
-            <p className="meta" style={{ margin: "0.35rem 0 0" }}>
-              Demo endpoint: <code>GET /v1/admin/boom/</code> (requires{" "}
-              <code>ENABLE_BOOM_ENDPOINT=true</code>).
+            <p className={`${muted} mt-[0.35rem]`}>
+              Demo endpoint: <code className={code}>GET /v1/admin/boom/</code> (requires{" "}
+              <code className={code}>ENABLE_BOOM_ENDPOINT=true</code>).
             </p>
           </div>
-          <div className="nav">
-            <Link className="button secondary" to="/admin/boom">
+          <div className="flex flex-wrap items-center gap-3">
+            <Link className={btnSecondary} to="/admin/boom">
               Trigger demo 500
             </Link>
             {errors.length > 0 ? (
@@ -190,7 +217,7 @@ export default function Admin() {
                 <input type="hidden" name="intent" value="delete-all-errors" />
                 <button
                   type="submit"
-                  className="btn-compact btn-ghost"
+                  className={btnGhost}
                   disabled={deleting}
                   onClick={(event) => {
                     if (!confirm("Delete all saved stack traces?")) {
@@ -205,88 +232,117 @@ export default function Admin() {
           </div>
         </div>
         {boomJustFired ? (
-          <p className="success">
+          <p className="mt-3 text-leaf-dark">
             Demo 500 fired — new row should appear below (and an alert email if SMTP is configured).
           </p>
         ) : null}
-        {actionError ? <p className="error">{actionError}</p> : null}
+        {actionError ? <p className="mt-3 text-[#8a2b1c]">{actionError}</p> : null}
         {errors.length === 0 ? (
-          <p className="meta" style={{ marginTop: "1rem" }}>
-            No saved stack traces.
-          </p>
+          <p className={`${muted} mt-4`}>No saved stack traces.</p>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>When</th>
-                <th>Path</th>
-                <th>Message</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {errors.map((error) => {
-                const rowBusy = pendingDeleteId === error.id;
-                return (
-                  <tr key={error.id} className={rowBusy ? "is-deleting" : undefined}>
-                    <td>{new Date(error.createdAt).toLocaleString()}</td>
-                    <td>
-                      {error.requestMethod} {error.requestPath}
-                    </td>
-                    <td>
-                      <div>{error.message}</div>
-                      <pre className="stack-trace">{error.stackTrace || ""}</pre>
-                    </td>
-                    <td>
-                      <deleteFetcher.Form method="post">
-                        <input type="hidden" name="intent" value="delete-error" />
-                        <input type="hidden" name="errorId" value={error.id} />
-                        <button type="submit" className="btn-compact btn-ghost" disabled={deleting}>
-                          {rowBusy ? "Deleting…" : "Delete"}
-                        </button>
-                      </deleteFetcher.Form>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <ul className="mt-4 m-0 grid list-none gap-4 p-0">
+            {errors.map((error) => {
+              const rowBusy = pendingDeleteId === error.id;
+              return (
+                <li
+                  key={error.id}
+                  className={`min-w-0 rounded-xl border border-line bg-white/40 p-5${
+                    rowBusy ? " opacity-55" : ""
+                  }`}
+                >
+                  <div className="mb-3 flex items-start justify-between gap-4">
+                    <div className="min-w-0 flex-1">
+                      <p className="m-0 text-[0.9rem] font-semibold text-ink">
+                        {new Date(error.createdAt).toLocaleString()}
+                      </p>
+                      <p className={`${muted} mt-1 break-all`}>
+                        {error.requestMethod} {error.requestPath}
+                      </p>
+                      <p className="mt-2 m-0 text-ink">{error.message}</p>
+                    </div>
+                    <deleteFetcher.Form method="post" className="shrink-0 mr-3 mt-2">
+                      <input type="hidden" name="intent" value="delete-error" />
+                      <input type="hidden" name="errorId" value={error.id} />
+                      <button
+                        type="submit"
+                        className={`${btnCompact} px-4 py-2`}
+                        disabled={deleting}
+                      >
+                        {rowBusy ? "Deleting…" : "Delete"}
+                      </button>
+                    </deleteFetcher.Form>
+                  </div>
+                  <pre className="max-h-[28rem] max-w-full overflow-auto whitespace-pre-wrap break-words rounded-xl border border-line bg-ink/5 p-3 text-[0.78rem] leading-[1.35] text-ink">
+                    {error.stackTrace || ""}
+                  </pre>
+                </li>
+              );
+            })}
+          </ul>
         )}
       </section>
 
-      <section className="panel" style={{ marginTop: "1.5rem" }}>
-        <div className="row">
+      <section className={`${panel} mt-6`}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h2>Allure test report</h2>
-          <a className="button secondary" href="/admin/allure/index.html" target="_blank" rel="noreferrer">
+          <a
+            className={btnSecondary}
+            href="/admin/allure/index.html"
+            target="_blank"
+            rel="noreferrer"
+          >
             Open report
           </a>
         </div>
-        <p style={{ margin: "0.75rem 0 1rem" }}>
-          Published after <code>mvn test allure:report</code> (or <code>mvn verify</code>). Only ADMIN
-          sessions can load it.
+        <p className={`${muted} my-3`}>
+          Published after <code className={code}>mvn test allure:report</code> (or{" "}
+          <code className={code}>mvn verify</code>). Only ADMIN sessions can load it.
         </p>
         <iframe
-          className="iframe"
+          className="min-h-[70vh] w-full rounded-2xl border border-line bg-white"
           title="Allure report"
           src="/admin/allure/index.html"
         />
-        <p className="meta" style={{ marginTop: "0.75rem" }}>
+        <p className={`${muted} mt-3`}>
           Tip: open <Link to="/admin/allure/index.html">/admin/allure</Link> for a full-page view
           proxied with your admin session.
         </p>
       </section>
 
-      <section className="panel" style={{ marginTop: "1.5rem" }}>
-        <div className="row">
+      <section className={`${panel} mt-6`}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2>Playwright E2E report</h2>
+          <a
+            className={btnSecondary}
+            href="/admin/playwright/index.html"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open report
+          </a>
+        </div>
+        <p className={`${muted} my-3`}>
+          Written to <code className={code}>playwright-report/</code> after{" "}
+          <code className={code}>yarn playwright test</code>. ADMIN only — served from this app.
+        </p>
+        <iframe
+          className="min-h-[70vh] w-full rounded-2xl border border-line bg-white"
+          title="Playwright report"
+          src="/admin/playwright/index.html"
+        />
+      </section>
+
+      <section className={`${panel} mt-6`}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2>API docs (Javadoc)</h2>
-            <p className="meta" style={{ margin: "0.35rem 0 0" }}>
+            <p className={`${muted} mt-[0.35rem]`}>
               HTTP status / error codes and resource tree. Publish with{" "}
-              <code>mvn javadoc:aggregate</code>.
+              <code className={code}>mvn javadoc:aggregate</code>.
             </p>
           </div>
           <a
-            className="btn-compact"
+            className={btnCompact}
             href="/admin/javadoc/index.html"
             target="_blank"
             rel="noreferrer"
@@ -294,6 +350,120 @@ export default function Admin() {
             Open
           </a>
         </div>
+      </section>
+
+      <section className={`${panel} mt-6`}>
+        <h2>Client storage</h2>
+        <p className={`${muted} mb-[0.85rem]`}>
+          Highspring does not use <code className={code}>window.localStorage</code> (the cart lives
+          in Postgres). The only browser-held auth data is the httpOnly Remix session cookie below.
+        </p>
+        <table className={table}>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Example value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="w-36 whitespace-nowrap">
+                <code className={code}>__highspring</code>
+              </td>
+              <td>
+                Cookie name for Remix <code className={code}>createCookieSessionStorage</code>.
+                HttpOnly, path <code className={code}>/</code>, SameSite=Lax. Holds signed session
+                payload (not readable from JS).
+              </td>
+              <td className="max-w-xs">
+                <code className={code}>eyJhbGciOiJIUzI1NiJ9.…</code> (opaque signed cookie)
+              </td>
+            </tr>
+            <tr>
+              <td className="w-36 whitespace-nowrap">
+                <code className={code}>user</code>
+              </td>
+              <td>
+                Key inside the cookie session. JSON string of the signed-in API session returned
+                after Google OAuth.
+              </td>
+              <td className="max-w-xs">
+                <code
+                  className={`${code} inline-block max-w-full whitespace-pre-wrap break-words leading-[1.35]`}
+                >
+                  {`{"sessionId":"a1b2c3d4-…","userId":"e5f6…","email":"you@example.com","displayName":"Alex Shopper","role":"ADMIN"}`}
+                </code>
+              </td>
+            </tr>
+            <tr>
+              <td className="w-36 whitespace-nowrap">
+                <code className={code}>user.sessionId</code>
+              </td>
+              <td>
+                API session UUID. Sent as <code className={code}>Authorization: session:{"{uuid}"}</code>{" "}
+                on Remix server → API calls.
+              </td>
+              <td className="max-w-xs">
+                <code className={code}>a1b2c3d4-e5f6-7890-abcd-ef1234567890</code>
+              </td>
+            </tr>
+            <tr>
+              <td className="w-36 whitespace-nowrap">
+                <code className={code}>user.userId</code>
+              </td>
+              <td>Stable Highspring user id (DB primary key) for the signed-in account.</td>
+              <td className="max-w-xs">
+                <code className={code}>8f3c2a1b-4d5e-6f70-8192-a3b4c5d6e7f8</code>
+              </td>
+            </tr>
+            <tr>
+              <td className="w-36 whitespace-nowrap">
+                <code className={code}>user.email</code>
+              </td>
+              <td>
+                Google account email. Compared to <code className={code}>ADMIN_EMAILS</code> for the
+                ADMIN role.
+              </td>
+              <td className="max-w-xs">
+                <code className={code}>michaelpaquette@gmail.com</code>
+              </td>
+            </tr>
+            <tr>
+              <td className="w-36 whitespace-nowrap">
+                <code className={code}>user.displayName</code>
+              </td>
+              <td>Optional display name from Google profile; may be null.</td>
+              <td className="max-w-xs">
+                <code className={code}>Alex Shopper</code> or <code className={code}>null</code>
+              </td>
+            </tr>
+            <tr>
+              <td className="w-36 whitespace-nowrap">
+                <code className={code}>user.role</code>
+              </td>
+              <td>
+                Authorization role from the API: <code className={code}>CUSTOMER</code> or{" "}
+                <code className={code}>ADMIN</code>.
+              </td>
+              <td className="max-w-xs">
+                <code className={code}>ADMIN</code>
+              </td>
+            </tr>
+            <tr>
+              <td className="w-36 whitespace-nowrap">
+                <code className={code}>localStorage.*</code>
+              </td>
+              <td>
+                Not used. Anonymous-cart apps often store a cart JSON here until login; Highspring
+                requires Google sign-in first, so the server cart is enough.
+              </td>
+              <td className="max-w-xs">
+                <code className={code}>—</code> (empty)
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </section>
     </main>
   );

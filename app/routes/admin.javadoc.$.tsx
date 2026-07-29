@@ -1,11 +1,12 @@
+/**
+ * Proxies published Javadoc at `/admin/javadoc/*` (same pattern as admin.allure.$.tsx).
+ * Start at /admin/javadoc/index.html — includes HttpStatusGuide for REST error codes.
+ */
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { API_URL } from "~/utils/api.server";
 import { readSessionUser } from "~/utils/session.server";
 
-/**
- * Proxies published JavaDoc (incl. HTTP status guide) with the admin session header.
- */
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const user = await readSessionUser(request);
   if (!user) return redirect("/");

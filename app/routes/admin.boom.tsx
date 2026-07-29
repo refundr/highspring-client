@@ -1,11 +1,13 @@
+/**
+ * Demo helper: GET /admin/boom → calls API boom endpoint → back to /admin?boom=1.
+ * The API is expected to return 500; we catch that and still redirect so the new
+ * error row (and optional alert email) can show on the dashboard.
+ */
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { triggerDemoBoom } from "~/utils/api.server";
 import { readSessionUser } from "~/utils/session.server";
 
-/**
- * Demo link: calls the API boom endpoint, then returns to the admin error list.
- */
 export async function loader({ request }: LoaderFunctionArgs) {
   const user = await readSessionUser(request);
   if (!user) return redirect("/");

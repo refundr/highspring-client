@@ -1,5 +1,14 @@
-import { Link } from "@remix-run/react";
+/**
+ * Shared top navigation for signed-in pages.
+ *
+ * Shows Admin only when `user.role === "ADMIN"` (from the cookie / last /v1/me/).
+ * The API still re-checks admin on every /v1/admin/* call — this is UX, not the real lock.
+ *
+ * Sign out is a POST form (not a GET link) so other sites cannot log you out with <img src=…>.
+ */
+import { Form, Link } from "@remix-run/react";
 import type { Session } from "~/utils/api.server";
+import { brand, btn, btnSecondary } from "~/utils/ui";
 
 type AppNavProps = {
   user: Session;
@@ -9,43 +18,43 @@ type AppNavProps = {
   cartCount?: number;
 };
 
-/**
- * Top navigation. Shows an Admin button only when the signed-in user is an ADMIN.
- */
 export function AppNav({ user, current = "shop", cartCount = 0 }: AppNavProps) {
   const isAdmin = user.role === "ADMIN";
 
   return (
-    <div className="topbar">
-      <Link className="brand" to="/" aria-label="Highspring home">
+    <div className="mb-8 flex items-center justify-between gap-4">
+      <Link className={brand} to="/" aria-label="Highspring home">
         Highspring
       </Link>
-      <div className="nav">
+      <div className="flex flex-wrap items-center gap-3">
         <span>
           {user.email}
           {isAdmin ? " · ADMIN" : ""}
         </span>
         {current === "shop" ? (
-          <a className="button secondary cart-link" href="#cart">
+          // On the shop page, jump to the sticky cart panel (#cart).
+          <a className={btnSecondary} href="#cart">
             Cart{cartCount > 0 ? ` (${cartCount})` : ""}
           </a>
         ) : (
-          <Link className="button secondary" to="/shop">
+          <Link className={btnSecondary} to="/shop">
             Shop
           </Link>
         )}
         {isAdmin ? (
           <Link
-            className="button"
+            className={btn}
             to="/admin"
             aria-current={current === "admin" ? "page" : undefined}
           >
             Admin
           </Link>
         ) : null}
-        <Link className="button secondary" to="/?logout=1">
-          Sign out
-        </Link>
+        <Form method="post" action="/logout">
+          <button type="submit" className={btnSecondary}>
+            Sign out
+          </button>
+        </Form>
       </div>
     </div>
   );

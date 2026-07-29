@@ -1,3 +1,9 @@
+/**
+ * Server HTML renderer for each request.
+ * Remix calls this; it stringifies the React tree and returns an HTML Response.
+ * You rarely edit this file unless adding custom response headers globally
+ * (prefer `headers` exports on routes / root.tsx instead).
+ */
 import type { AppLoadContext, EntryContext } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import { renderToString } from "react-dom/server";
