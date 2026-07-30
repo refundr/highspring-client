@@ -77,4 +77,4 @@ yarn typecheck
 ## Reports in admin
 
 - **Allure** (API unit/integration): in `highspring-rest` run `mvn -pl api -am verify && mvn javadoc:aggregate`, restart the API, then open **Admin → Allure test report**.
-- **Playwright** (client E2E): after `yarn playwright test`, open **Admin → Playwright E2E report**, or use `yarn playwright show-report`. See [TEST.md](TEST.md).
+- **Playwright** (client E2E): after `yarn playwright test`, open **Admin → Playwright E2E report**, or use `yarn playwright show-report`. The HTML under `playwright-report/` is committed for prod Admin. See [TEST.md](TEST.md).

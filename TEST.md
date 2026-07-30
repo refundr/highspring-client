@@ -35,13 +35,13 @@ yarn playwright show-report        # local static server for last HTML report
 
 ## Viewing the report
 
-After a run, Playwright writes `playwright-report/`.
+After a run, Playwright writes `playwright-report/`. That folder is **committed** so Render admin can serve it without running E2E in prod.
 
 1. **CLI:** `yarn playwright show-report`
 2. **Admin UI (ADMIN role):** open **Admin → Playwright E2E report**, or
    `http://localhost:3000/admin/playwright/index.html`
 
-The admin route serves files from `playwright-report/` with the same cookie gate as the rest of `/admin` (must be signed in as ADMIN).
+The admin route serves files from `playwright-report/` with the same cookie gate as the rest of `/admin` (must be signed in as ADMIN). Re-run locally and commit when you want to refresh the prod report.
 
 ## What the smoke covers
 

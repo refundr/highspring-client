@@ -12,9 +12,9 @@ package-lock.json
 
 # Playwright
 /test-results/
-/playwright-report/
 /blob-report/
 /playwright/.cache/
+# playwright-report/ is committed so Render admin can serve the last HTML report
 
 # Just in case a Maven/Gradle module appears
 target/
