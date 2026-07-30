@@ -61,5 +61,5 @@ yarn typecheck
 
 ## Reports in admin
 
-- **Allure** (API unit/integration): after `mvn -pl api -am allure:report verify` in `highspring-rest`, open **Admin → Allure test report**.
+- **Allure** (API unit/integration): in `highspring-rest` run `mvn -pl api -am verify && mvn javadoc:aggregate`, restart the API, then open **Admin → Allure test report**.
 - **Playwright** (client E2E): after `yarn playwright test`, open **Admin → Playwright E2E report**, or use `yarn playwright show-report`. See [TEST.md](TEST.md).

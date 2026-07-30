@@ -295,8 +295,9 @@ export default function Admin() {
           </a>
         </div>
         <p className={`${muted} my-3`}>
-          Published after <code className={code}>mvn test allure:report</code> (or{" "}
-          <code className={code}>mvn verify</code>). Only ADMIN sessions can load it.
+          Published after <code className={code}>mvn -pl api -am verify</code> in{" "}
+          <code className={code}>highspring-rest</code> (restart the API afterward). Only ADMIN
+          sessions can load it.
         </p>
         <iframe
           className="min-h-[70vh] w-full rounded-2xl border border-line bg-white"
