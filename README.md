@@ -28,11 +28,19 @@ Start with [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — BFF cookie pattern, 
 | `docs/ARCHITECTURE.md` | BFF, auth, routing, and Tailwind overview |
 | `tsconfig.json` | TypeScript project config |
 
-## Setup
+## Setup / start (dev)
+
+With the Highspring API already running locally:
 
 ```bash
-yarn install
+yarn
+yarn playwright test
+yarn dev
 ```
+
+- `yarn` — install dependencies  
+- `yarn playwright test` — run E2E smoke tests (API must be up; see [TEST.md](TEST.md))  
+- `yarn dev` — start the Remix app at http://localhost:3000  
 
 Optional environment:
 
@@ -42,14 +50,6 @@ export SESSION_SECRET=dev-secret
 ```
 
 Put your Google account email in the API `ADMIN_EMAILS` list to unlock `/admin`.
-
-## Development
-
-```bash
-yarn dev
-```
-
-Open http://localhost:3000
 
 ## Build / start / typecheck
 
