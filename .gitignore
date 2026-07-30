@@ -4,7 +4,18 @@ build
 .env
 .DS_Store
 package-lock.json
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Playwright
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Just in case a Maven/Gradle module appears
+target/
+**/target/
