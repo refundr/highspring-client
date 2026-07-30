@@ -59,8 +59,12 @@ Native Node (no Docker). Blueprint: `render.yaml`.
 2. Blueprint-deploy this repo (or create a Node web service with `yarn install && yarn build` / `yarn start`).
 3. Set env:
    - `API_URL=https://<highspring-api>.onrender.com`
+   - `PUBLIC_APP_URL=https://<this-service>.onrender.com` (no trailing slash; used for Google OAuth)
    - `SESSION_SECRET` (auto-generated if using the blueprint)
-4. Point Google OAuth redirect at `https://<this-service>.onrender.com/auth/callback`.
+4. In Google Cloud Console → Credentials → your Web client, add:
+   - Authorized redirect URI: `https://<this-service>.onrender.com/auth/callback`
+   - Authorized JavaScript origin: `https://<this-service>.onrender.com`
+   Keep the localhost entries for local dev. Exact match required (`https`, no trailing slash on the callback path beyond `/auth/callback`).
 
 ## Build / start / typecheck
 

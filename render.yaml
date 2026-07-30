@@ -2,8 +2,11 @@
 # Docs: https://render.com/docs/blueprint-spec
 #
 # Set API_URL to your deployed API (e.g. https://highspring-api.onrender.com).
-# Update Google OAuth authorized redirect URI to:
+# Set PUBLIC_APP_URL to this service's public URL (e.g. https://highspring-client.onrender.com).
+# Register in Google Cloud Console (Authorized redirect URIs):
 #   https://<this-service>.onrender.com/auth/callback
+# And Authorized JavaScript origins:
+#   https://<this-service>.onrender.com
 
 services:
   - type: web
@@ -17,6 +20,8 @@ services:
       - key: NODE_VERSION
         value: "20"
       - key: API_URL
+        sync: false
+      - key: PUBLIC_APP_URL
         sync: false
       - key: SESSION_SECRET
         generateValue: true

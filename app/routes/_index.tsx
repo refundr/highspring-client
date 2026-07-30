@@ -11,6 +11,7 @@ import { json, redirect } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { AppNav } from "~/components/AppNav";
 import { fetchMe, getAuthUrl } from "~/utils/api.server";
+import { publicOrigin } from "~/utils/origin.server";
 import { commitUserSession, readSessionUser } from "~/utils/session.server";
 import { brand, btn, heading, hero, muted, shell } from "~/utils/ui";
 
@@ -42,7 +43,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return redirect("/shop");
   }
 
-  const redirectUri = `${url.origin}/auth/callback`;
+  // Must use the public https origin (not request.url behind Render's proxy).
+  const redirectUri = `${publicOrigin(request)}/auth/callback`;
   // "highspring" is a simple OAuth state placeholder (not cryptographically verified yet).
   const { uri } = await getAuthUrl(redirectUri, "highspring");
   return json({ thanks: false as const, user: null, purchaseId: null, googleUrl: uri });

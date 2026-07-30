@@ -10,6 +10,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { exchangeCode } from "~/utils/api.server";
+import { publicOrigin } from "~/utils/origin.server";
 import { commitUserSession } from "~/utils/session.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -18,8 +19,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (!code) {
     throw new Response("Missing Google authorization code", { status: 400 });
   }
-  // redirectUri must be identical to the one used when building the auth URL.
-  const redirectUri = `${url.origin}/auth/callback`;
+  // Must match the redirect URI used when building the Google auth URL.
+  const redirectUri = `${publicOrigin(request)}/auth/callback`;
   const session = await exchangeCode(code, redirectUri);
   const cookie = await commitUserSession(session);
   return redirect("/shop", {
