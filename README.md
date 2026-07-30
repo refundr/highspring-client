@@ -18,7 +18,7 @@ Start with [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — BFF cookie pattern, 
 
 ## Folder map (quick)
 
-| Path | Purpose |[tsconfig.json](tsconfig.json)
+| Path | Purpose |
 |------|---------|
 | `app/routes/` | One file ≈ one URL (loaders, actions, UI) |
 | `app/components/` | Shared React pieces (nav, footer) |
@@ -26,6 +26,7 @@ Start with [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — BFF cookie pattern, 
 | `app/utils/ui.ts` | Reusable Tailwind class strings |
 | `app/app.css` | Tailwind theme tokens |
 | `docs/ARCHITECTURE.md` | BFF, auth, routing, and Tailwind overview |
+| `tsconfig.json` | TypeScript project config |
 
 ## Setup
 
@@ -40,11 +41,7 @@ export API_URL=http://127.0.0.1:8090
 export SESSION_SECRET=dev-secret
 ```
 
-In Google Cloud Console, add redirect URI:
-
-`http://localhost:3000/auth/callback`
-
-That same URI must match `GOOGLE_REDIRECT_URI` on the API. Put your Google account email in the API `ADMIN_EMAILS` list to unlock `/admin`.
+Put your Google account email in the API `ADMIN_EMAILS` list to unlock `/admin`.
 
 ## Development
 
