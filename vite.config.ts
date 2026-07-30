@@ -26,9 +26,9 @@ export default defineConfig({
     tsconfigPaths(),
   ],
   server: {
-    // Match Playwright's baseURL (127.0.0.1). Binding only to "localhost" can leave
-    // IPv4 probes hanging on some macOS setups while the process looks "up".
-    host: "127.0.0.1",
+    // Prefer localhost so the printed URL matches Google OAuth redirect
+    // (http://localhost:3000/auth/callback) — 127.0.0.1 is a different origin.
+    host: "localhost",
     port: Number(process.env.PORT) || 3000,
     strictPort: true,
   },
