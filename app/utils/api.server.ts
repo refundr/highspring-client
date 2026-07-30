@@ -240,12 +240,8 @@ export function deleteAllAdminErrors(sessionId: string) {
 }
 
 /** Demo-only: forces a 500 on the API when ENABLE_BOOM_ENDPOINT=true. */
-export async function triggerDemoBoom(sessionId: string): Promise<{ status: number; body: string }> {
-  const headers = new Headers({ Accept: "application/json" });
-  headers.set("Authorization", `session:${sessionId}`);
-  const response = await fetch(`${API_URL}/v1/admin/boom/`, { headers });
-  const body = await response.text();
-  return { status: response.status, body };
+export function triggerDemoBoom(sessionId: string) {
+  return api<void>("/v1/admin/boom/", { sessionId });
 }
 
 export function allureReportUrl() {
