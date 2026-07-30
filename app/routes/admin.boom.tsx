@@ -1,7 +1,6 @@
 /**
- * Demo helper: GET /admin/boom → calls API boom endpoint → back to /admin?boom=1.
- * The API is expected to return 500; we catch that and still redirect so the new
- * error row (and optional alert email) can show on the dashboard.
+ * Demo helper: GET /admin/boom → calls API boom endpoint → back to /admin.
+ * Expects HTTP 500 when ENABLE_BOOM_ENDPOINT=true (error is logged + emailed).
  */
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
@@ -16,10 +15,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   try {
-    await triggerDemoBoom(user.sessionId);
+    const result = await triggerDemoBoom(user.sessionId);
+    if (result.status === 500) {
+      return redirect("/admin?boom=1");
+    }
+    // e.g. 404 when ENABLE_BOOM_ENDPOINT is false in prod
+    return redirect(`/admin?boom=0&boomStatus=${result.status}`);
   } catch {
-    // Expected: API returns 500 and records/emails the error.
+    return redirect("/admin?boom=0&boomStatus=error");
   }
-
-  return redirect("/admin?boom=1");
 }

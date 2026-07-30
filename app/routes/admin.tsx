@@ -54,7 +54,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     fetchAdminErrors(user.sessionId),
   ]);
 
-  const boomJustFired = new URL(request.url).searchParams.get("boom") === "1";
+  const url = new URL(request.url);
+  const boomJustFired = url.searchParams.get("boom") === "1";
+  const boomFailed = url.searchParams.get("boom") === "0";
+  const boomStatus = url.searchParams.get("boomStatus");
 
   return json({
     user,
@@ -62,6 +65,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     purchases,
     errors,
     boomJustFired,
+    boomFailed,
+    boomStatus,
   });
 }
 
@@ -103,7 +108,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Admin() {
-  const { user, totals, purchases, errors: loaderErrors, boomJustFired } =
+  const { user, totals, purchases, errors: loaderErrors, boomJustFired, boomFailed, boomStatus } =
     useLoaderData<typeof loader>();
   const [errors, setErrors] = useState<ErrorLog[]>(loaderErrors);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -234,6 +239,12 @@ export default function Admin() {
         {boomJustFired ? (
           <p className="mt-3 text-leaf-dark">
             Demo 500 fired — new row should appear below (and an alert email if SMTP is configured).
+          </p>
+        ) : null}
+        {boomFailed ? (
+          <p className="mt-3 text-[#8a2b1c]">
+            Demo 500 did not run (API returned {boomStatus || "an error"}). Set{" "}
+            <code className={code}>ENABLE_BOOM_ENDPOINT=true</code> on the API service and redeploy.
           </p>
         ) : null}
         {actionError ? <p className="mt-3 text-[#8a2b1c]">{actionError}</p> : null}
