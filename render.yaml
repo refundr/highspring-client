@@ -1,0 +1,24 @@
+# Render Blueprint — highspring Remix client (native Node, no Docker).
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Set API_URL to your deployed API (e.g. https://highspring-api.onrender.com).
+# Update Google OAuth authorized redirect URI to:
+#   https://<this-service>.onrender.com/auth/callback
+
+services:
+  - type: web
+    name: highspring-client
+    runtime: node
+    plan: free
+    buildCommand: yarn install && yarn build
+    startCommand: yarn start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: API_URL
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: HOST
+        value: 0.0.0.0

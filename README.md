@@ -51,6 +51,17 @@ export SESSION_SECRET=dev-secret
 
 Put your Google account email in the API `ADMIN_EMAILS` list to unlock `/admin`.
 
+## Deploy on Render
+
+Native Node (no Docker). Blueprint: `render.yaml`.
+
+1. Deploy **highspring-rest** first (see that repo’s README).
+2. Blueprint-deploy this repo (or create a Node web service with `yarn install && yarn build` / `yarn start`).
+3. Set env:
+   - `API_URL=https://<highspring-api>.onrender.com`
+   - `SESSION_SECRET` (auto-generated if using the blueprint)
+4. Point Google OAuth redirect at `https://<this-service>.onrender.com/auth/callback`.
+
 ## Build / start / typecheck
 
 ```bash
