@@ -4,7 +4,8 @@
  * Google redirects the browser here after the user consents.
  * We trade `code` for a Highspring Session, store it in the cookie, then go to /shop.
  *
- * Must match GOOGLE_REDIRECT_URI on the API and the URI registered in Google Cloud Console.
+ * Must match the redirect URI registered in Google Cloud Console
+ * (and the same value sent when starting the Google auth URL).
  */
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
