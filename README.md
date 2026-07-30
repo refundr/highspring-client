@@ -49,7 +49,7 @@ export API_URL=http://127.0.0.1:8090
 export SESSION_SECRET=dev-secret
 ```
 
-Put your Google account email in the API `ADMIN_EMAILS` list to unlock `/admin`.
+New Google sign-ins are **ADMIN** by default (easy admin demo). `ADMIN_EMAILS` is still accepted in config for compatibility but is not required for admin access.
 
 ## Deploy on Render
 
