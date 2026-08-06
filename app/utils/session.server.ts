@@ -1,5 +1,5 @@
-import { createCookieSessionStorage } from "@remix-run/node";
-import type { Session } from "~/utils/api.server";
+import {createCookieSessionStorage} from "@remix-run/node";
+import type {Session} from "~/utils/api.server";
 
 /**
  * Remix cookie session storage.
@@ -15,20 +15,20 @@ import type { Session } from "~/utils/api.server";
  * Signing out should revoke BOTH (see routes/logout.tsx).
  */
 const storage = createCookieSessionStorage({
-  cookie: {
-    name: "__highspring",
-    httpOnly: true,
-    path: "/",
-    sameSite: "lax",
-    // Change SESSION_SECRET in real deploys — the default is only for local demos.
-    secrets: [process.env.SESSION_SECRET || "highspring-dev-secret"],
-    secure: process.env.NODE_ENV === "production",
-  },
+    cookie: {
+        name: "__highspring",
+        httpOnly: true,
+        path: "/",
+        sameSite: "lax",
+        // Change SESSION_SECRET in real deploys — the default is only for local demos.
+        secrets: [process.env.SESSION_SECRET || "highspring-dev-secret"],
+        secure: process.env.NODE_ENV === "production",
+    },
 });
 
 /** Low-level: parse the cookie jar from the incoming request. */
 export async function getUserSession(request: Request) {
-  return storage.getSession(request.headers.get("Cookie"));
+    return storage.getSession(request.headers.get("Cookie"));
 }
 
 /**
@@ -36,9 +36,9 @@ export async function getUserSession(request: Request) {
  * Call this at the top of almost every protected loader/action.
  */
 export async function readSessionUser(request: Request): Promise<Session | null> {
-  const session = await getUserSession(request);
-  const raw = session.get("user");
-  return raw ? (JSON.parse(raw) as Session) : null;
+    const session = await getUserSession(request);
+    const raw = session.get("user");
+    return raw ? (JSON.parse(raw) as Session) : null;
 }
 
 /**
@@ -46,15 +46,15 @@ export async function readSessionUser(request: Request): Promise<Session | null>
  * Return value goes in `Set-Cookie` on a Remix Response/redirect.
  */
 export async function commitUserSession(user: Session) {
-  const session = await storage.getSession();
-  session.set("user", JSON.stringify(user));
-  return storage.commitSession(session);
+    const session = await storage.getSession();
+    session.set("user", JSON.stringify(user));
+    return storage.commitSession(session);
 }
 
 /**
  * Clear the Remix cookie only. Prefer routes/logout.tsx which also revokes the API session.
  */
 export async function destroyUserSession(request: Request) {
-  const session = await getUserSession(request);
-  return storage.destroySession(session);
+    const session = await getUserSession(request);
+    return storage.destroySession(session);
 }

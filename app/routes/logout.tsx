@@ -10,29 +10,29 @@
  *
  * Using POST (not GET /?logout=1) avoids drive-by logout CSRF via a simple link or image.
  */
-import type { ActionFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import { logoutSession } from "~/utils/api.server";
-import { destroyUserSession, readSessionUser } from "~/utils/session.server";
+import type {ActionFunctionArgs} from "@remix-run/node";
+import {redirect} from "@remix-run/node";
+import {logoutSession} from "~/utils/api.server";
+import {destroyUserSession, readSessionUser} from "~/utils/session.server";
 
-export async function action({ request }: ActionFunctionArgs) {
-  if (request.method !== "POST") {
-    return redirect("/");
-  }
+export async function action({request}: ActionFunctionArgs) {
+    if (request.method !== "POST") {
+        return redirect("/");
+    }
 
-  const user = await readSessionUser(request);
-  if (user) {
-    await logoutSession(user.sessionId);
-  }
+    const user = await readSessionUser(request);
+    if (user) {
+        await logoutSession(user.sessionId);
+    }
 
-  return redirect("/", {
-    headers: {
-      "Set-Cookie": await destroyUserSession(request),
-    },
-  });
+    return redirect("/", {
+        headers: {
+            "Set-Cookie": await destroyUserSession(request),
+        },
+    });
 }
 
 /** Accidental GET /logout just sends you home. */
 export async function loader() {
-  return redirect("/");
+    return redirect("/");
 }
