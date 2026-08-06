@@ -52,6 +52,6 @@ export default defineConfig({
     // (http://localhost:3000/auth/callback) — 127.0.0.1 is a different origin.
     host: "localhost",
     port: Number(process.env.PORT) || 3000,
-    strictPort: true,
+    strictPort: true, // fail if port is already in use
   },
 });

@@ -1,4 +1,8 @@
 /**
+ *
+ * A route action is a server-only function to handle data mutations and other actions.
+ * If a non-GET request is made to your route (DELETE, PATCH, POST, or PUT) then the action is called before the loaders.
+ *
  * POST /logout — end the login on both layers.
  *
  * 1. DELETE /v1/auth/logout/ → API deletes the api_session row (token stops working)

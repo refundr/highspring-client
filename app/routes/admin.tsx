@@ -41,30 +41,6 @@ type DeleteActionData =
   | { ok: true; deletedAll: true; deletedId?: undefined }
   | { ok: false; error: string };
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await readSessionUser(request);
-  if (!user) return redirect("/");
-  if (user.role !== "ADMIN") {
-    throw new Response("Admins only", { status: 403 });
-  }
-
-  const [totals, purchases, errors] = await Promise.all([
-    fetchAdminTotals(user.sessionId),
-    fetchAdminPurchases(user.sessionId),
-    fetchAdminErrors(user.sessionId),
-  ]);
-
-  const boomJustFired = new URL(request.url).searchParams.get("boom") === "1";
-
-  return json({
-    user,
-    totals,
-    purchases,
-    errors,
-    boomJustFired,
-  });
-}
-
 export async function action({ request }: ActionFunctionArgs) {
   const user = await readSessionUser(request);
   if (!user) return redirect("/");
@@ -102,18 +78,39 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
+export async function loader({ request }: LoaderFunctionArgs) {
+    const user = await readSessionUser(request);
+    if (!user) return redirect("/");
+    if (user.role !== "ADMIN") {
+        throw new Response("Admins only", { status: 403 });
+    }
+
+    const [totals, purchases, errors] = await Promise.all([
+        fetchAdminTotals(user.sessionId),
+        fetchAdminPurchases(user.sessionId),
+        fetchAdminErrors(user.sessionId),
+    ]);
+
+    const boomJustFired = new URL(request.url).searchParams.get("boom") === "1";
+
+    return json({
+        user,
+        totals,
+        purchases,
+        errors,
+        boomJustFired,
+    });
+}
+
+
 export default function Admin() {
-  const { user, totals, purchases, errors: loaderErrors, boomJustFired } =
-    useLoaderData<typeof loader>();
+  const { user, totals, purchases, errors: loaderErrors, boomJustFired } = useLoaderData<typeof loader>();
   const [errors, setErrors] = useState<ErrorLog[]>(loaderErrors);
   const [actionError, setActionError] = useState<string | null>(null);
   const deleteFetcher = useFetcher<DeleteActionData>();
   const clearFetcher = useFetcher<DeleteActionData>();
   const deleting = deleteFetcher.state !== "idle" || clearFetcher.state !== "idle";
-  const pendingDeleteId =
-    deleteFetcher.state !== "idle"
-      ? Number(deleteFetcher.formData?.get("errorId") || NaN)
-      : null;
+  const pendingDeleteId = deleteFetcher.state !== "idle" ? Number(deleteFetcher.formData?.get("errorId") || NaN) : null;
 
   useEffect(() => {
     setErrors(loaderErrors);

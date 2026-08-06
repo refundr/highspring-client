@@ -28,6 +28,7 @@ export const links: LinksFunction = () => [
  * Simple browser hardening.
  * CSRF for our forms is mostly SameSite=Lax on the session cookie (see session.server.ts).
  * CSP here limits where scripts/styles/images can load from.
+ * A strict set of rules declaring which external assets the browser is allowed to fetch or execute.
  */
 export const headers: HeadersFunction = () => ({
   "Content-Security-Policy": [
